@@ -1,0 +1,72 @@
+# Dependencies
+node_modules/
+
+# Angular
+.angular/
+dist/
+out-tsc/
+
+# Build outputs
+build/
+www/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Firebase
+.firebase/
+
+# Coverage
+coverage/
+
+# Temporary files
+tmp/
+temp/
+.cache/
+
+# Angular cache
+.eslintcache
+
+# Capacitor / Ionic
+android/.gradle/
+android/app/build/
+android/build/
+ios/App/build/
+ios/DerivedData/
+
+# Package lock files (optional)
+# package-lock.json
+# yarn.lock
+
+# Generated files
+*.tmp
+*.bak
+
+# Visual Studio
+.vs/
+
+# TypeScript cache
+*.tsbuildinfo

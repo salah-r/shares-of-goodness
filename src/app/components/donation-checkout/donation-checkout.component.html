@@ -1,0 +1,175 @@
+<div class="checkout-container" dir="rtl">
+  <!-- Recovery Dialog Alert (Arabic-first, high contrast) -->
+  @if (showRecoveryDialog()) {
+    <div class="modal-overlay">
+      <div class="modal-content">
+        <h2>هل تود إكمال تبرعك السابق؟ 💖</h2>
+        <p>لقد لاحظنا أنك بدأت عملية تبرع سابقة ولم تكملها. يمكنك المتابعة من حيث توقفت مباشرة.</p>
+        <div class="modal-actions">
+          <button class="btn btn-primary" (click)="resumeDonation()">نعم، أكمل التبرع</button>
+          <button class="btn btn-secondary" (click)="discardDonation()">لا، ابدأ من جديد</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Header Section -->
+  <header class="checkout-header">
+    <h1>مساهمة في بناء مكتب بريد القرية 🏣</h1>
+    <p>شارك معنا في "أسهم الخير" واكسب صدقة جارية لأهل قريتك</p>
+  </header>
+
+  <!-- Stepper Indicators -->
+  <div class="stepper">
+    <div class="step" [class.active]="currentStep() >= 1">1. بيانات التبرع</div>
+    <div class="step-divider"></div>
+    <div class="step" [class.active]="currentStep() >= 2">2. تحويل وإرسال الإيصال</div>
+    <div class="step-divider"></div>
+    <div class="step" [class.active]="currentStep() === 3">3. تم التبرع</div>
+  </div>
+
+  <!-- STEP 1: Details Entry -->
+  @if (currentStep() === 1) {
+    <form [formGroup]="donationForm" (ngSubmit)="goToStepTwo()" class="checkout-form">
+      <div class="form-group">
+        <label for="donorName">الاسم الكريم</label>
+        <input 
+          id="donorName" 
+          type="text" 
+          formControlName="donorName" 
+          placeholder="أدخل اسمك أو اختر تبرع مجهول">
+        @if (donationForm.get('donorName')?.touched && donationForm.get('donorName')?.invalid && !donationForm.get('isAnonymous')?.value) {
+          <span class="validation-error">يرجى كتابة الاسم الكريم.</span>
+        }
+      </div>
+
+      <div class="checkbox-group">
+        <input id="isAnonymous" type="checkbox" formControlName="isAnonymous">
+        <label for="isAnonymous">التبرع كـ "فاعل خير" (إخفاء الاسم من قائمة المتبرعين)</label>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">رقم الهاتف المحمول (لتأكيد العملية)</label>
+        <input 
+          id="phone" 
+          type="text" 
+          formControlName="phone" 
+          placeholder="مثال: 01012345678"
+          inputmode="tel">
+        @if (donationForm.get('phone')?.touched && donationForm.get('phone')?.invalid) {
+          <span class="validation-error">يرجى إدخال رقم هاتف مصري صحيح (11 رقم).</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="shareAmount">قيمة التبرع بالجنيه المصري (سهم الخير = 100 جنيه)</label>
+        <input 
+          id="shareAmount" 
+          type="number" 
+          formControlName="shareAmount" 
+          min="10" 
+          step="50">
+        @if (donationForm.get('shareAmount')?.touched && donationForm.get('shareAmount')?.invalid) {
+          <span class="validation-error">الحد الأدنى للتبرع هو 10 جنيهات.</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="walletId">اختر طريقة التحويل المناسبة لك</label>
+        <select id="walletId" formControlName="walletId">
+          <option value="vodafone_cash_primary">فودافون كاش - 01023456789 (أساسي)</option>
+          <option value="instapay_primary">إنستاباي - villagepost&#64;instapay (أساسي)</option>
+          <option value="cib_smart_wallet">المحفظة الذكية CIB - 01234567890</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-large">المتابعة للتحويل وإرفاق الإيصال ←</button>
+    </form>
+  }
+
+  <!-- STEP 2: QR Code Scan & Receipt Upload -->
+  @if (currentStep() === 2) {
+    <div class="step-two-container">
+      <div class="info-alert">
+        <h3>💡 كيف تتم عملية التبرع؟</h3>
+        <p>1. قم بتحويل المبلغ المحدد <b>({{ donationForm.get('shareAmount')?.value }} جنيه)</b> إلى وسيلة الدفع التي اخترتها أدناه.</p>
+        <p>2. خذ لقطة شاشة (Screenshot) لإيصال التحويل الناجح.</p>
+        <p>3. قم برفع صورة الإيصال هنا لإرسال التبرع للمراجعة.</p>
+      </div>
+
+      <div class="wallet-qr-card">
+        <h3>وسيلة الدفع المختارة:</h3>
+        <p class="wallet-info">
+          @if (donationForm.get('walletId')?.value === 'vodafone_cash_primary') {
+            <b>فودافون كاش: 01023456789</b>
+          } @else if (donationForm.get('walletId')?.value === 'instapay_primary') {
+            <b>إنستاباي: villagepost&#64;instapay</b>
+          } @else {
+            <b>محفظة ذكية: 01234567890</b>
+          }
+        </p>
+        <!-- Mock QR code representing the transaction wallet address -->
+        <div class="qr-placeholder">
+          <div class="qr-code">QR CODE</div>
+          <span>امسح الرمز ضوئياً للتحويل السريع</span>
+        </div>
+      </div>
+
+      <div class="upload-section">
+        <label for="receiptUpload" class="upload-label">
+          📁 اضغط هنا لاختيار صورة إيصال التحويل (اللقطة)
+        </label>
+        <input 
+          id="receiptUpload" 
+          type="file" 
+          accept="image/*" 
+          (change)="onFileSelected($event)" 
+          class="hidden-input">
+
+        @if (filePreview()) {
+          <div class="preview-container">
+            <p>معاينة صورة الإيصال المختار:</p>
+            <img [src]="filePreview()" alt="معاينة الإيصال" class="receipt-preview">
+          </div>
+        }
+      </div>
+
+      <div class="action-buttons">
+        <button 
+          class="btn btn-primary btn-large" 
+          [disabled]="isSubmitting() || !selectedFile()" 
+          (click)="submitDonation()">
+          @if (isSubmitting()) {
+            جاري إرسال التبرع...
+          } @else {
+            تأكيد التبرع وإرسال الإيصال ✔️
+          }
+        </button>
+        <button class="btn btn-secondary" [disabled]="isSubmitting()" (click)="goBackToStepOne()">
+          → العودة لتعديل البيانات
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- STEP 3: Success Screen -->
+  @if (currentStep() === 3) {
+    <div class="success-screen">
+      <div class="success-icon">🎉</div>
+      <h2>شكر الله سعيكم! تم إرسال تبرعك بنجاح</h2>
+      <p>تتم مراجعة إيصال التحويل الخاص بك حالياً من قِبل إدارة المشروع.</p>
+      <p>ستظهر مساهمتك بقيمة <b>{{ donationForm.get('shareAmount')?.value }} جنيه</b> في لوحة المتبرعين فور اعتمادها.</p>
+      
+      <div class="viral-share-card">
+        <h3>📢 شارك الأجر واكسب حسنات أكثر!</h3>
+        <p>انشر رابط التبرع لأصدقائك وأقاربك عبر الواتساب لتشجيعهم على المساهمة:</p>
+        <a 
+          [href]="'https://wa.me/?text=' + encodeURIComponent('شاركت في بناء مكتب بريد القرية بـ سهم خير! شارك معي ولك الأجر والثواب: http://village-post-office.com')" 
+          target="_blank" 
+          class="btn btn-whatsapp">
+          🟢 شارك عبر واتساب الآن
+        </a>
+      </div>
+    </div>
+  }
+</div>

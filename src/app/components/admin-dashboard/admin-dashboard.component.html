@@ -1,0 +1,163 @@
+<div class="admin-container" dir="rtl">
+  <!-- Header Section -->
+  <header class="admin-header">
+    <div class="header-main">
+      <h1>لوحة تحكم إدارة المشروع 📊</h1>
+      <p>مراجعة وتأكيد إيصالات المساهمة في بناء مكتب بريد القرية</p>
+    </div>
+    <a href="/donate" class="btn btn-secondary">← عودة لصفحة التبرع</a>
+  </header>
+
+  <!-- KPI Summary Cards -->
+  <section class="kpi-grid">
+    <div class="kpi-card highlight">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-details">
+        <h3>إجمالي التبرعات المعتمدة</h3>
+        <span class="kpi-value">{{ totalRaised() | number }} جنيه</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon">⏳</div>
+      <div class="kpi-details">
+        <h3>إيصالات قيد الانتظار</h3>
+        <span class="kpi-value">{{ pendingCount() }}</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon">✅</div>
+      <div class="kpi-details">
+        <h3>التبرعات المقبولة</h3>
+        <span class="kpi-value">{{ approvedCount() }}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filter and Actions Toolbar -->
+  <section class="toolbar">
+    <div class="filters">
+      <button 
+        class="filter-btn" 
+        [class.active]="filter() === 'all'" 
+        (click)="setFilter('all')">الكل</button>
+      <button 
+        class="filter-btn" 
+        [class.active]="filter() === 'pending'" 
+        (click)="setFilter('pending')">
+        قيد الانتظار 
+        @if (pendingCount() > 0) {
+          <span class="badge-count">{{ pendingCount() }}</span>
+        }
+      </button>
+      <button 
+        class="filter-btn" 
+        [class.active]="filter() === 'approved'" 
+        (click)="setFilter('approved')">مقبول</button>
+      <button 
+        class="filter-btn" 
+        [class.active]="filter() === 'rejected'" 
+        (click)="setFilter('rejected')">مرفوض</button>
+    </div>
+    
+    <button class="btn btn-secondary btn-refresh" (click)="loadDonations()" [disabled]="isLoading()">
+      🔄 {{ isLoading() ? 'جاري التحديث...' : 'تحديث البيانات' }}
+    </button>
+  </section>
+
+  <!-- Loading State -->
+  @if (isLoading() && donations().length === 0) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>جاري تحميل سجل التبرعات...</p>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!isLoading() && filteredDonations().length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <p>لا يوجد تبرعات تطابق الفلتر المختار حالياً.</p>
+    </div>
+  }
+
+  <!-- Table Section -->
+  @if (filteredDonations().length > 0) {
+    <div class="table-responsive">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>المتبرع</th>
+            <th>رقم الهاتف</th>
+            <th>القيمة</th>
+            <th>طريقة الدفع</th>
+            <th>تاريخ الإرسال</th>
+            <th>الحالة</th>
+            <th>إيصال التحويل</th>
+            <th>الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of filteredDonations(); track item._id) {
+            <tr>
+              <td class="donor-name">
+                {{ item.donorName }}
+                @if (item.isAnonymous) {
+                  <span class="anon-label">(فاعل خير)</span>
+                }
+              </td>
+              <td class="donor-phone">{{ item.phone }}</td>
+              <td class="donor-amount">{{ item.shareAmount | number }} جنيه</td>
+              <td>{{ getWalletName(item.walletId) }}</td>
+              <td>{{ item.createdAt | date:'yyyy-MM-dd HH:mm' }}</td>
+              <td>
+                <span class="status-badge" [ngClass]="getStatusBadgeClass(item.status)">
+                  {{ getStatusText(item.status) }}
+                </span>
+              </td>
+              <td>
+                <button class="btn-link" (click)="openReceipt(item.receiptUrl)">
+                  🖼️ عرض الإيصال
+                </button>
+              </td>
+              <td class="actions-cell">
+                @if (item.status === 'pending') {
+                  <button 
+                    class="btn-action btn-approve" 
+                    title="موافقة"
+                    (click)="updateStatus(item._id, 'approved')">
+                    ✔️ موافقة
+                  </button>
+                  <button 
+                    class="btn-action btn-reject" 
+                    title="رفض"
+                    (click)="updateStatus(item._id, 'rejected')">
+                    ❌ رفض
+                  </button>
+                } @else {
+                  <span class="completed-action">-</span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- Receipt Viewer Modal -->
+  @if (selectedReceiptUrl()) {
+    <div class="modal-overlay" (click)="closeReceipt()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <h3>صورة إيصال التحويل</h3>
+          <button class="close-btn" (click)="closeReceipt()">✖</button>
+        </header>
+        <div class="modal-body">
+          <img [src]="selectedReceiptUrl()" alt="إيصال التحويل" class="receipt-full-image">
+        </div>
+      </div>
+    </div>
+  }
+</div>

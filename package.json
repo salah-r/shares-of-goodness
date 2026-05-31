@@ -19,7 +19,6 @@
     "@angular/platform-browser-dynamic": "^19.0.0",
     "@angular/router": "^19.0.0",
     "rxjs": "~7.8.0",
-    "scratch": "file:../../../.gemini/antigravity/scratch",
     "tslib": "^2.6.2",
     "zone.js": "~0.15.0"
   },

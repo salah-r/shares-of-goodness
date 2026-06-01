@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { DonationRecoveryService } from '../../services/donation-recovery.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-donation-checkout',
@@ -165,7 +166,7 @@ export class DonationCheckoutComponent implements OnInit {
     formData.append('walletId', this.donationForm.get('walletId')?.value);
 
     // Dynamic Server URI
-    this.http.post('/api/donations/submit', formData).subscribe({
+    this.http.post(`${environment.apiUrl}/donations/submit`, formData).subscribe({
       next: () => {
         this.isSubmitting.set(false);
         this.recoveryService.clearState(); // Success: Clear draft

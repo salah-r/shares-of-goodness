@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -48,7 +49,7 @@ export class AdminDashboardComponent implements OnInit {
 
   loadDonations() {
     this.isLoading.set(true);
-    this.http.get<any[]>('/api/donations').subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/donations`).subscribe({
       next: (data) => {
         this.donations.set(data);
         this.isLoading.set(false);
@@ -62,7 +63,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   updateStatus(id: string, status: 'approved' | 'rejected') {
-    this.http.patch(`/api/donations/${id}/status`, { status }).subscribe({
+    this.http.patch(`${environment.apiUrl}/donations/${id}/status`, { status }).subscribe({
       next: () => {
         // Update local list state directly to preserve responsiveness
         this.donations.update(list => 

@@ -2,19 +2,22 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { RouterModule } from '@angular/router';
 import { DonationRecoveryService } from '../../services/donation-recovery.service';
+import { WalletService, Wallet } from '../../services/wallet.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-donation-checkout',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule],
   templateUrl: './donation-checkout.component.html',
-  styleUrls: ['./donation-checkout.component.css']
+  styleUrls: ['./donation-checkout.component.scss']
 })
 export class DonationCheckoutComponent implements OnInit {
   private fb = inject(FormBuilder);
   private recoveryService = inject(DonationRecoveryService);
+  private walletService = inject(WalletService);
   private http = inject(HttpClient);
 
   // Form Definition with RTL / Elderly friendly Validation Rules
@@ -24,7 +27,7 @@ export class DonationCheckoutComponent implements OnInit {
     isAnonymous: [false],
     shareAmount: [100, [Validators.required, Validators.min(10)]],
     sharePackageId: [''],
-    walletId: ['vodafone_cash_primary', Validators.required]
+    walletId: ['', Validators.required]
   });
 
   // Signals for application state management
@@ -33,15 +36,21 @@ export class DonationCheckoutComponent implements OnInit {
   filePreview = signal<string | null>(null);
   isSubmitting = signal<boolean>(false);
   showRecoveryDialog = signal<boolean>(false);
+  availableWallets = signal<Wallet[]>([]);
 
   // Computed signals
   hasAbandoned = computed(() => this.recoveryService.hasAbandonedDonation());
+  selectedWalletDetails = computed(() => {
+    return this.availableWallets().find(w => w._id === this.donationForm.get('walletId')?.value);
+  });
 
   ngOnInit() {
     // Detect abandoned state on layout load
     if (this.hasAbandoned()) {
       this.showRecoveryDialog.set(true);
     }
+
+    this.loadWallets();
 
     // Handle isAnonymous toggle to add/remove required validation dynamically
     this.donationForm.get('isAnonymous')?.valueChanges.subscribe(isAnon => {
@@ -79,6 +88,23 @@ export class DonationCheckoutComponent implements OnInit {
   // Helper method for template to encode URL
   encodeURIComponent(val: string): string {
     return encodeURIComponent(val);
+  }
+
+  loadWallets() {
+    this.walletService.getWallets().subscribe({
+      next: (wallets) => {
+        // Only show active wallets
+        const activeWallets = wallets.filter(w => w.isActive !== false);
+        this.availableWallets.set(activeWallets);
+        
+        // Auto select first primary or just first wallet if empty
+        if (!this.donationForm.get('walletId')?.value && activeWallets.length > 0) {
+          const primary = activeWallets.find(w => w.isPrimary) || activeWallets[0];
+          this.donationForm.patchValue({ walletId: primary._id });
+        }
+      },
+      error: (err) => console.error('Failed to load wallets:', err)
+    });
   }
 
   // Restore the user's previous donation draft

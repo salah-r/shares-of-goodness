@@ -1,0 +1,43 @@
+<div class="top-donors-container" dir="rtl">
+  <header class="header">
+    <div class="header-icon">🏆</div>
+    <h1>أبطال الخير</h1>
+    <p>أكبر الداعمين في حملة بناء مكتب بريد القرية</p>
+  </header>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>جاري تحميل أبطال الخير...</p>
+    </div>
+  } @else if (topDonors().length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">🌟</div>
+      <p>كن أول المنضمين إلى قائمة أبطال الخير!</p>
+    </div>
+  } @else {
+    <div class="podium-container">
+      @for (donor of topDonors(); track donor.donorName; let i = $index) {
+        <div class="donor-card" [ngClass]="'rank-' + (i + 1)">
+          <div class="rank-badge">
+            @if (i === 0) { 🥇 }
+            @else if (i === 1) { 🥈 }
+            @else if (i === 2) { 🥉 }
+          </div>
+          
+          <div class="donor-details">
+            <h2 class="donor-name">{{ donor.donorName }}</h2>
+            <div class="donor-amount">
+              <span class="amount-value">{{ donor.totalAmount | number }}</span>
+              <span class="currency">جنيه</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <div class="actions">
+    <a routerLink="/donate" class="btn btn-primary">ساهم معنا الآن ←</a>
+  </div>
+</div>

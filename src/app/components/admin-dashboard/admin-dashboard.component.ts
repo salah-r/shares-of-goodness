@@ -2,19 +2,22 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { WalletService, Wallet } from '../../services/wallet.service';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './admin-dashboard.component.html',
-  styleUrl: './admin-dashboard.component.css'
+  styleUrl: './admin-dashboard.component.scss'
 })
 export class AdminDashboardComponent implements OnInit {
   private http = inject(HttpClient);
+  private walletService = inject(WalletService);
 
   // Signals
   donations = signal<any[]>([]);
+  wallets = signal<Wallet[]>([]);
   filter = signal<'all' | 'pending' | 'approved' | 'rejected'>('all');
   selectedReceiptUrl = signal<string | null>(null);
   isLoading = signal<boolean>(false);
@@ -45,6 +48,14 @@ export class AdminDashboardComponent implements OnInit {
 
   ngOnInit() {
     this.loadDonations();
+    this.loadWallets();
+  }
+
+  loadWallets() {
+    this.walletService.getWallets().subscribe({
+      next: (data) => this.wallets.set(data),
+      error: (err) => console.error('Failed to load wallets:', err)
+    });
   }
 
   loadDonations() {
@@ -90,6 +101,10 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   getWalletName(walletId: string): string {
+    const wallet = this.wallets().find(w => w._id === walletId);
+    if (wallet) {
+      return `${wallet.name} (${wallet.provider})`;
+    }
     switch (walletId) {
       case 'vodafone_cash_primary':
         return 'فودافون كاش (أساسي)';

@@ -14,9 +14,13 @@
   }
 
   <!-- Header Section -->
-  <header class="checkout-header">
-    <h1>مساهمة في بناء مكتب بريد القرية 🏣</h1>
-    <p>شارك معنا في "أسهم الخير" واكسب صدقة جارية لأهل قريتك</p>
+  <header class="checkout-header" style="display: flex; justify-content: center; align-items: center; flex-direction: column; flex-wrap: wrap; gap: 8px;">
+    <img src="https://egyptpost.gov.eg/img/nav-logo.svg" alt="Egypt Post Logo" style="height: 60px; margin-bottom: 8px;">
+    <div>
+      <h1>مساهمة في بناء مكتب بريد القرية 🏣</h1>
+      <p>شارك معنا في "أسهم الخير" واكسب صدقة جارية لأهل قريتك</p>
+    </div>
+    <a routerLink="/top-donors" class="btn btn-secondary" style="font-size: 1.1rem; padding: 12px 24px;">🏆 قائمة أبطال الخير</a>
   </header>
 
   <!-- Stepper Indicators -->
@@ -77,9 +81,12 @@
       <div class="form-group">
         <label for="walletId">اختر طريقة التحويل المناسبة لك</label>
         <select id="walletId" formControlName="walletId">
-          <option value="vodafone_cash_primary">فودافون كاش - 01023456789 (أساسي)</option>
-          <option value="instapay_primary">إنستاباي - villagepost&#64;instapay (أساسي)</option>
-          <option value="cib_smart_wallet">المحفظة الذكية CIB - 01234567890</option>
+          <option value="" disabled>-- جاري تحميل المحافظ --</option>
+          @for (wallet of availableWallets(); track wallet._id) {
+            <option [value]="wallet._id">
+              {{ wallet.provider }} - {{ wallet.number }} {{ wallet.name ? '(' + wallet.name + ')' : '' }} {{ wallet.isPrimary ? '⭐' : '' }}
+            </option>
+          }
         </select>
       </div>
 
@@ -100,12 +107,11 @@
       <div class="wallet-qr-card">
         <h3>وسيلة الدفع المختارة:</h3>
         <p class="wallet-info">
-          @if (donationForm.get('walletId')?.value === 'vodafone_cash_primary') {
-            <b>فودافون كاش: 01023456789</b>
-          } @else if (donationForm.get('walletId')?.value === 'instapay_primary') {
-            <b>إنستاباي: villagepost&#64;instapay</b>
+          @if (selectedWalletDetails()) {
+            <b>{{ selectedWalletDetails()!.provider }}: <span dir="ltr">{{ selectedWalletDetails()!.number }}</span></b>
+            <br><small>{{ selectedWalletDetails()!.name }}</small>
           } @else {
-            <b>محفظة ذكية: 01234567890</b>
+            <b>لم يتم اختيار محفظة</b>
           }
         </p>
         <!-- Mock QR code representing the transaction wallet address -->
@@ -164,7 +170,7 @@
         <h3>📢 شارك الأجر واكسب حسنات أكثر!</h3>
         <p>انشر رابط التبرع لأصدقائك وأقاربك عبر الواتساب لتشجيعهم على المساهمة:</p>
         <a 
-          [href]="'https://wa.me/?text=' + encodeURIComponent('شاركت في بناء مكتب بريد القرية بـ سهم خير! شارك معي ولك الأجر والثواب: http://village-post-office.com')" 
+          [href]="'https://wa.me/?text=' + encodeURIComponent('شاركت في بناء مكتب بريد القرية بـ سهم خير! شارك معي ولك الأجر والثواب: https://modernhouse.qzz.io/donate')" 
           target="_blank" 
           class="btn btn-whatsapp">
           🟢 شارك عبر واتساب الآن

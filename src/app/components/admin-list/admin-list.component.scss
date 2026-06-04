@@ -1,4 +1,4 @@
-:root {
+:host {
   --primary: #0d9488;
   --primary-dark: #0f766e;
   --primary-light: #f0fdfa;
@@ -379,8 +379,47 @@
 .modal-body {
   padding: 24px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
   background: var(--bg-main);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: right;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.form-control {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
 }
 
 .receipt-full-image {

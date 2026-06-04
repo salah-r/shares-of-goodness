@@ -5,7 +5,12 @@
       <h1>لوحة تحكم إدارة المشروع 📊</h1>
       <p>مراجعة وتأكيد إيصالات المساهمة في بناء مكتب بريد القرية</p>
     </div>
-    <a href="/donate" class="btn btn-secondary">← عودة لصفحة التبرع</a>
+    <div class="actions" style="display: flex; gap: 10px;">
+      <a href="/admin/list" class="btn btn-secondary">👥 إدارة المشرفين</a>
+      <a href="/admin/wallets" class="btn btn-secondary">💳 إدارة المحافظ</a>
+      <a href="/top-donors" class="btn btn-secondary">🏆 أبطال الخير</a>
+      <a href="/donate" class="btn btn-primary">← عودة لصفحة التبرع</a>
+    </div>
   </header>
 
   <!-- KPI Summary Cards -->
@@ -102,9 +107,10 @@
           @for (item of filteredDonations(); track item._id) {
             <tr>
               <td class="donor-name">
-                {{ item.donorName }}
                 @if (item.isAnonymous) {
-                  <span class="anon-label">(فاعل خير)</span>
+                  <span class="anon-label">فاعل خير</span>
+                } @else {
+                  {{ item.donorName }}
                 }
               </td>
               <td class="donor-phone">{{ item.phone }}</td>

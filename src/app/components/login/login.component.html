@@ -1,0 +1,54 @@
+<div class="login-container" dir="rtl">
+  <div class="login-card">
+    <div class="login-header">
+      <h2>تسجيل الدخول للمشرفين 🔒</h2>
+      <p>أدخل بيانات الدخول للوصول إلى لوحة التحكم</p>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="alert alert-danger">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <form (ngSubmit)="login()" class="login-form">
+      <div class="form-group">
+        <label for="email">البريد الإلكتروني</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          [(ngModel)]="email" 
+          class="form-control" 
+          placeholder="admin@example.com"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="password">كلمة المرور</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          [(ngModel)]="password" 
+          class="form-control" 
+          placeholder="••••••••"
+          required
+        >
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="isLoading()">
+        @if (isLoading()) {
+          <span class="spinner-small"></span> جاري الدخول...
+        } @else {
+          تسجيل الدخول
+        }
+      </button>
+      
+      <div style="margin-top: 15px; text-align: center;">
+        <a href="/donate" class="btn-link">العودة لصفحة التبرع</a>
+      </div>
+    </form>
+  </div>
+</div>

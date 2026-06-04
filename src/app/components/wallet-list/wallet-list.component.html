@@ -1,0 +1,95 @@
+<div class="admin-container" dir="rtl">
+  <header class="admin-header">
+    <div class="header-main">
+      <h1>إدارة المحافظ 💳</h1>
+      <p>عرض وإضافة وتعديل محافظ التحويل (يجب ربط المحفظة بمشرف)</p>
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary" (click)="openAddDialog()">+ إضافة محفظة جديدة</button>
+      <a href="/admin-dashboard" class="btn btn-secondary">العودة للوحة التحكم</a>
+    </div>
+  </header>
+
+  <div class="table-responsive">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>اسم المحفظة / الغرض</th>
+          <th>مزود الخدمة</th>
+          <th>الرقم / الحساب</th>
+          <th>المشرف التابع</th>
+          <th>أساسي</th>
+          <th>الحالة</th>
+          <th>الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (wallet of wallets(); track wallet._id) {
+          <tr>
+            <td>{{ wallet.name }}</td>
+            <td>{{ wallet.provider }}</td>
+            <td dir="ltr" style="text-align: right;">{{ wallet.number }}</td>
+            <td>{{ getAdminName(wallet.adminId) }}</td>
+            <td>{{ wallet.isPrimary ? 'نعم ⭐' : 'لا' }}</td>
+            <td>{{ wallet.isActive ? 'نشط' : 'معطل' }}</td>
+            <td class="actions-cell">
+              <button class="btn-action btn-approve" (click)="openEditDialog(wallet)">✏️ تعديل</button>
+              <button class="btn-action btn-reject" (click)="deleteWallet(wallet._id!)">🗑️ حذف</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (showDialog()) {
+    <div class="modal-overlay" (click)="closeDialog()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <h3>{{ isEditing() ? 'تعديل المحفظة' : 'إضافة محفظة جديدة' }}</h3>
+          <button class="close-btn" (click)="closeDialog()">✖</button>
+        </header>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>اسم المحفظة (الذي يظهر للمتبرع)</label>
+            <input type="text" [(ngModel)]="currentWallet.name" class="form-control" placeholder="مثال: فودافون كاش - أحمد">
+          </div>
+          <div class="form-group">
+            <label>مزود الخدمة</label>
+            <select [(ngModel)]="currentWallet.provider" class="form-control">
+              <option value="Vodafone Cash">فودافون كاش</option>
+              <option value="InstaPay">إنستاباي</option>
+              <option value="CIB Smart Wallet">المحفظة الذكية CIB</option>
+              <option value="Other">أخرى</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>الرقم / الحساب</label>
+            <input type="text" [(ngModel)]="currentWallet.number" class="form-control" dir="ltr" style="text-align: right;">
+          </div>
+          <div class="form-group">
+            <label>المشرف التابع (المسؤول عن استلام التحويلات)</label>
+            <select [(ngModel)]="currentWallet.adminId" class="form-control">
+              <option value="" disabled selected>-- اختر مشرف --</option>
+              @for (admin of admins(); track admin._id) {
+                <option [value]="admin._id">{{ admin.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="isPrimary" [(ngModel)]="currentWallet.isPrimary">
+            <label for="isPrimary">طريقة دفع أساسية</label>
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="isActiveWallet" [(ngModel)]="currentWallet.isActive">
+            <label for="isActiveWallet">المحفظة نشطة (تظهر في صفحة التبرع)</label>
+          </div>
+        </div>
+        <div class="modal-actions" style="margin-top: 15px; display: flex; gap: 10px;">
+          <button class="btn btn-primary" (click)="saveWallet()" [disabled]="!currentWallet.name || !currentWallet.provider || !currentWallet.number || !currentWallet.adminId">حفظ</button>
+          <button class="btn btn-secondary" (click)="closeDialog()">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -1,5 +1,5 @@
 /* Custom Premium HSL & Glassmorphic Palette */
-:root {
+:host {
   --primary-color: #0d9488; /* Emerald Teal */
   --primary-dark: #0f766e;
   --secondary-color: #f3f4f6;
@@ -10,6 +10,8 @@
   --glass-bg: rgba(255, 255, 255, 0.95);
   --border-radius: 16px;
 }
+
+
 
 .checkout-container {
   max-width: 550px;
@@ -28,6 +30,8 @@
 .checkout-header {
   text-align: center;
   margin-bottom: 24px;
+  flex-direction: column;
+
 }
 
 .checkout-header h1 {
@@ -361,9 +365,11 @@
 }
 @media (max-width: 600px) {
   .checkout-container {
+    max-width: 100%;
     margin: 8px;
     padding: 16px;
     border-radius: 12px;
+    
   }
   .stepper {
     font-size: 0.75rem;

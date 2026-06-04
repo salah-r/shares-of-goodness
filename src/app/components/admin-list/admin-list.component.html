@@ -1,0 +1,71 @@
+<div class="admin-container" dir="rtl">
+  <header class="admin-header">
+    <div class="header-main">
+      <h1>إدارة المشرفين 👥</h1>
+      <p>عرض وإضافة وتعديل المشرفين (كل مشرف يمكن ربط محافظ به)</p>
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary" (click)="openAddDialog()">+ إضافة مشرف جديد</button>
+      <a href="/admin-dashboard" class="btn btn-secondary">العودة للوحة التحكم</a>
+    </div>
+  </header>
+
+  <div class="table-responsive">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>الاسم</th>
+          <th>البريد الإلكتروني</th>
+          <th>الحالة</th>
+          <th>الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (admin of admins(); track admin._id) {
+          <tr>
+            <td>{{ admin.name }}</td>
+            <td>{{ admin.email || 'لا يوجد' }}</td>
+            <td>{{ admin.isActive ? 'نشط' : 'غير نشط' }}</td>
+            <td class="actions-cell">
+              <button class="btn-action btn-approve" (click)="openEditDialog(admin)">✏️ تعديل</button>
+              <button class="btn-action btn-reject" (click)="deleteAdmin(admin._id!)">🗑️ حذف</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (showDialog()) {
+    <div class="modal-overlay" (click)="closeDialog()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <h3>{{ isEditing() ? 'تعديل المشرف' : 'إضافة مشرف جديد' }}</h3>
+          <button class="close-btn" (click)="closeDialog()">✖</button>
+        </header>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>الاسم</label>
+            <input type="text" [(ngModel)]="currentAdmin.name" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>البريد الإلكتروني (لتسجيل الدخول)</label>
+            <input type="email" [(ngModel)]="currentAdmin.email" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>كلمة المرور {{ isEditing() ? '(اتركها فارغة إذا لم ترد التغيير)' : '' }}</label>
+            <input type="password" [(ngModel)]="currentAdmin.password" class="form-control">
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="isActive" [(ngModel)]="currentAdmin.isActive">
+            <label for="isActive">نشط (يمكنه تلقي التحويلات)</label>
+          </div>
+        </div>
+        <div class="modal-actions" style="margin-top: 15px; display: flex; gap: 10px;">
+          <button class="btn btn-primary" (click)="saveAdmin()" [disabled]="!currentAdmin.name">حفظ</button>
+          <button class="btn btn-secondary" (click)="closeDialog()">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

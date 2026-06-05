@@ -26,13 +26,13 @@
       <tbody>
         @for (wallet of wallets(); track wallet._id) {
           <tr>
-            <td>{{ wallet.name }}</td>
-            <td>{{ wallet.provider }}</td>
-            <td dir="ltr" style="text-align: right;">{{ wallet.number }}</td>
-            <td>{{ getAdminName(wallet.adminId) }}</td>
-            <td>{{ wallet.isPrimary ? 'نعم ⭐' : 'لا' }}</td>
-            <td>{{ wallet.isActive ? 'نشط' : 'معطل' }}</td>
-            <td class="actions-cell">
+            <td data-label="اسم المحفظة / الغرض">{{ wallet.name }}</td>
+            <td data-label="مزود الخدمة">{{ wallet.provider }}</td>
+            <td dir="ltr" style="text-align: right;" data-label="الرقم / الحساب">{{ wallet.number }}</td>
+            <td data-label="المشرف التابع">{{ getAdminName(wallet.adminId) }}</td>
+            <td data-label="أساسي">{{ wallet.isPrimary ? 'نعم ⭐' : 'لا' }}</td>
+            <td data-label="الحالة">{{ wallet.isActive ? 'نشط' : 'معطل' }}</td>
+            <td class="actions-cell" data-label="الإجراءات">
               <button class="btn-action btn-approve" (click)="openEditDialog(wallet)">✏️ تعديل</button>
               <button class="btn-action btn-reject" (click)="deleteWallet(wallet._id!)">🗑️ حذف</button>
             </td>
@@ -57,10 +57,10 @@
           <div class="form-group">
             <label>مزود الخدمة</label>
             <select [(ngModel)]="currentWallet.provider" class="form-control">
-              <option value="Vodafone Cash">فودافون كاش</option>
+              <option value="Vodafone Cash">محافظ كاش</option>
               <option value="InstaPay">إنستاباي</option>
-              <option value="CIB Smart Wallet">المحفظة الذكية CIB</option>
-              <option value="Other">أخرى</option>
+              <!-- <option value="CIB Smart Wallet">المحفظة الذكية CIB</option>
+              <option value="Other">أخرى</option> -->
             </select>
           </div>
           <div class="form-group">
@@ -85,7 +85,7 @@
             <label for="isActiveWallet">المحفظة نشطة (تظهر في صفحة التبرع)</label>
           </div>
         </div>
-        <div class="modal-actions" style="margin-top: 15px; display: flex; gap: 10px;">
+        <div class="modal-actions" style="margin: 15px; display: flex; gap: 10px;">
           <button class="btn btn-primary" (click)="saveWallet()" [disabled]="!currentWallet.name || !currentWallet.provider || !currentWallet.number || !currentWallet.adminId">حفظ</button>
           <button class="btn btn-secondary" (click)="closeDialog()">إلغاء</button>
         </div>

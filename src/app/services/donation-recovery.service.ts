@@ -33,6 +33,18 @@ export class DonationRecoveryService {
   }
 
   /**
+   * Validates if the draft has enough required data to be considered worth recovering.
+   */
+  isValidDraft(data: IncompleteDonation): boolean {
+    if (!data) return false;
+    if (!data.phone || data.phone.trim() === '') return false;
+    if (!data.walletId || data.walletId.trim() === '') return false;
+    if (!data.shareAmount || data.shareAmount < 10) return false;
+    if (!data.isAnonymous && (!data.donorName || data.donorName.trim() === '')) return false;
+    return true;
+  }
+
+  /**
    * Load draft donation from localStorage
    */
   loadState(): IncompleteDonation | null {
@@ -40,8 +52,12 @@ export class DonationRecoveryService {
     if (stored) {
       try {
         const data = JSON.parse(stored) as IncompleteDonation;
-        this.incompleteDonation.set(data);
-        return data;
+        if (this.isValidDraft(data)) {
+          this.incompleteDonation.set(data);
+          return data;
+        } else {
+          this.clearState();
+        }
       } catch (e) {
         this.clearState();
       }
@@ -59,9 +75,10 @@ export class DonationRecoveryService {
   }
 
   /**
-   * Checks if an incomplete donation exists
+   * Checks if an incomplete donation exists and is valid
    */
   hasAbandonedDonation(): boolean {
-    return this.incompleteDonation() !== null;
+    const data = this.incompleteDonation();
+    return data !== null && this.isValidDraft(data);
   }
 }

@@ -23,10 +23,10 @@
       <tbody>
         @for (admin of admins(); track admin._id) {
           <tr>
-            <td>{{ admin.name }}</td>
-            <td>{{ admin.email || 'لا يوجد' }}</td>
-            <td>{{ admin.isActive ? 'نشط' : 'غير نشط' }}</td>
-            <td class="actions-cell">
+            <td data-label="الاسم">{{ admin.name }}</td>
+            <td data-label="البريد الإلكتروني">{{ admin.email || 'لا يوجد' }}</td>
+            <td data-label="الحالة">{{ admin.isActive ? 'نشط' : 'غير نشط' }}</td>
+            <td class="actions-cell" data-label="الإجراءات">
               <button class="btn-action btn-approve" (click)="openEditDialog(admin)">✏️ تعديل</button>
               <button class="btn-action btn-reject" (click)="deleteAdmin(admin._id!)">🗑️ حذف</button>
             </td>
@@ -61,7 +61,7 @@
             <label for="isActive">نشط (يمكنه تلقي التحويلات)</label>
           </div>
         </div>
-        <div class="modal-actions" style="margin-top: 15px; display: flex; gap: 10px;">
+        <div class="modal-actions" style="margin: 15px; display: flex; gap: 10px;">
           <button class="btn btn-primary" (click)="saveAdmin()" [disabled]="!currentAdmin.name">حفظ</button>
           <button class="btn btn-secondary" (click)="closeDialog()">إلغاء</button>
         </div>

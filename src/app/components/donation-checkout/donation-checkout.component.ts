@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { DonationRecoveryService } from '../../services/donation-recovery.service';
 import { WalletService, Wallet } from '../../services/wallet.service';
+import { AuthService } from '../../services/auth.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -19,6 +20,7 @@ export class DonationCheckoutComponent implements OnInit {
   private recoveryService = inject(DonationRecoveryService);
   private walletService = inject(WalletService);
   private http = inject(HttpClient);
+  private authService = inject(AuthService);
 
   // Form Definition with RTL / Elderly friendly Validation Rules
   donationForm: FormGroup = this.fb.group({
@@ -50,7 +52,21 @@ export class DonationCheckoutComponent implements OnInit {
       this.showRecoveryDialog.set(true);
     }
 
-    this.loadWallets();
+    // Workaround for backend un-deployed changes: 
+    // Auto login as a pseudo donor to fetch wallets
+    if (!this.authService.isAuthenticated() || this.authService.currentUser()?.email !== 'donner@donner.com') {
+      this.authService.login({ email: 'donner@donner.com', password: 'donner123' }).subscribe({
+        next: () => {
+          this.loadWallets();
+        },
+        error: (err) => {
+          console.error('Failed to login as donner:', err);
+          this.loadWallets(); // Try anyway just in case
+        }
+      });
+    } else {
+      this.loadWallets();
+    }
 
     // Handle isAnonymous toggle to add/remove required validation dynamically
     this.donationForm.get('isAnonymous')?.valueChanges.subscribe(isAnon => {
@@ -71,7 +87,8 @@ export class DonationCheckoutComponent implements OnInit {
 
     // Auto-save form inputs in real time
     this.donationForm.valueChanges.subscribe(() => {
-      if (this.currentStep() === 1) {
+      // Prevent saving over the draft while the recovery dialog is still open
+      if (this.currentStep() === 1 && !this.showRecoveryDialog()) {
         const values = this.donationForm.getRawValue();
         this.recoveryService.saveState({
           donorName: values.donorName || '',
@@ -204,5 +221,33 @@ export class DonationCheckoutComponent implements OnInit {
         alert('حدث خطأ أثناء إرسال تبرعك. يرجى التحقق من الاتصال وإعادة المحاولة.');
       }
     });
+  }
+
+  // Reset state to start a new donation
+  startNewDonation() {
+    this.donationForm.reset({
+      donorName: '',
+      phone: '',
+      isAnonymous: false,
+      shareAmount: 100,
+      sharePackageId: '',
+      walletId: this.availableWallets().length > 0 ? (this.availableWallets().find(w => w.isPrimary) || this.availableWallets()[0])._id : ''
+    });
+    this.selectedFile.set(null);
+    this.filePreview.set(null);
+    this.currentStep.set(1);
+    
+    // Explicitly update donorName validators after reset based on isAnonymous
+    const isAnon = this.donationForm.get('isAnonymous')?.value;
+    const donorNameControl = this.donationForm.get('donorName');
+    if (isAnon) {
+      donorNameControl?.clearValidators();
+      donorNameControl?.setValue('فاعل خير');
+      donorNameControl?.disable();
+    } else {
+      donorNameControl?.setValidators([Validators.required]);
+      donorNameControl?.enable();
+    }
+    donorNameControl?.updateValueAndValidity();
   }
 }

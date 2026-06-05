@@ -20,7 +20,10 @@
       <h1>مساهمة في بناء مكتب بريد القرية 🏣</h1>
       <p>شارك معنا في "أسهم الخير" واكسب صدقة جارية لأهل قريتك</p>
     </div>
-    <a routerLink="/top-donors" class="btn btn-secondary" style="font-size: 1.1rem; padding: 12px 24px;">🏆 قائمة أبطال الخير</a>
+    <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; justify-content: center;">
+      <a routerLink="/top-donors" class="btn btn-secondary" style="font-size: 1.1rem; padding: 12px 24px;">🏆 قائمة أبطال الخير</a>
+      <a routerLink="/stats" class="btn btn-secondary" style="font-size: 1.1rem; padding: 12px 24px;">⚙️ لوحة المشرفين</a>
+    </div>
   </header>
 
   <!-- Stepper Indicators -->
@@ -146,7 +149,7 @@
           [disabled]="isSubmitting() || !selectedFile()" 
           (click)="submitDonation()">
           @if (isSubmitting()) {
-            جاري إرسال التبرع...
+            <span class="spinner-small"></span> جاري إرسال التبرع...
           } @else {
             تأكيد التبرع وإرسال الإيصال ✔️
           }
@@ -176,6 +179,10 @@
           🟢 شارك عبر واتساب الآن
         </a>
       </div>
+
+      <button class="btn btn-secondary" style="margin-top: 16px; padding: 12px 24px; font-size: 1.1rem;" (click)="startNewDonation()">
+        تبرع مرة أخرى 🎁
+      </button>
     </div>
   }
 </div>

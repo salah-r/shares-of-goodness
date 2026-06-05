@@ -106,28 +106,28 @@
         <tbody>
           @for (item of filteredDonations(); track item._id) {
             <tr>
-              <td class="donor-name">
+              <td class="donor-name" data-label="المتبرع">
                 @if (item.isAnonymous) {
                   <span class="anon-label">فاعل خير</span>
                 } @else {
                   {{ item.donorName }}
                 }
               </td>
-              <td class="donor-phone">{{ item.phone }}</td>
-              <td class="donor-amount">{{ item.shareAmount | number }} جنيه</td>
-              <td>{{ getWalletName(item.walletId) }}</td>
-              <td>{{ item.createdAt | date:'yyyy-MM-dd HH:mm' }}</td>
-              <td>
+              <td class="donor-phone" data-label="رقم الهاتف">{{ item.phone }}</td>
+              <td class="donor-amount" data-label="القيمة">{{ item.shareAmount | number }} جنيه</td>
+              <td data-label="طريقة الدفع">{{ getWalletName(item.walletId) }}</td>
+              <td data-label="تاريخ الإرسال">{{ item.createdAt | date:'yyyy-MM-dd HH:mm' }}</td>
+              <td data-label="الحالة">
                 <span class="status-badge" [ngClass]="getStatusBadgeClass(item.status)">
                   {{ getStatusText(item.status) }}
                 </span>
               </td>
-              <td>
+              <td data-label="إيصال التحويل">
                 <button class="btn-link" (click)="openReceipt(item.receiptUrl)">
                   🖼️ عرض الإيصال
                 </button>
               </td>
-              <td class="actions-cell">
+              <td class="actions-cell" data-label="الإجراءات">
                 @if (item.status === 'pending') {
                   <button 
                     class="btn-action btn-approve" 
